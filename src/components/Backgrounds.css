@@ -1,0 +1,18 @@
+.bg-dashboard {
+  background: url('../assets/bg1.jpg') no-repeat right bottom fixed;
+  background-size: contain;
+  min-height: 100vh;
+}
+
+.bg-login {
+  background: url('../assets/bg2.jpg') no-repeat center center fixed;
+  background-size: contain;
+  height: 100vh;
+}
+
+.bg-register,
+.bg-edit-vehicle {
+  background: url('../assets/bg3.jpg') no-repeat right bottom fixed;
+  background-size: contain;
+  min-height: 100vh;
+}
