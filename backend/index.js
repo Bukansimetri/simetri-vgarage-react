@@ -10,19 +10,36 @@ const crypto = require('crypto');
 require('dotenv').config();
 
 const app = express();
-app.use(cors());
+
+// =============================================
+// KONFIGURASI CORS (PASTIKAN DI ATAS MIDDLEWARE LAIN!)
+// =============================================
+app.use(cors({
+  origin: 'http://localhost:3000', // Ganti dengan origin frontend
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true // Jika menggunakan cookie/session
+}));
+
+// Tangani khusus OPTIONS request (Preflight)
+app.options('*', cors()); // Izinkan semua route
+
+// Middleware untuk parsing JSON
 app.use(express.json());
 
-// PostgreSQL connection
+// =============================================
+// KONEKSI DATABASE POSTGRESQL
+// =============================================
 const pool = new Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'skripsi',
-  password: 'camprock5',
+  user: 'jumratyahmad',
+  host: '127.0.0.1',
+  database: 'db_vgaraga',
+  password: 'password', // Ganti dengan password PostgreSQL Anda
   port: 5432,
 });
 
-const JWT_SECRET = process.env.JWT_SECRET; // Use an environment variable in production
+// JWT Secret (Simpan di .env untuk produksi)
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Configure your email transporter (example uses Gmail)
 const transporter = nodemailer.createTransport({
@@ -380,4 +397,4 @@ app.patch('/api/vehicles/:id', authenticateToken, async (req, res) => {
   }
 });
 
-app.listen(5000, () => console.log('Server running on http://localhost:5000'));
+app.listen(5001, () => console.log('Server running on http://localhost:5001'));
