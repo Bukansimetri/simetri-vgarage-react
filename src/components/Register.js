@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Register.css'; // You can reuse Login.css or create a new one
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+
 const Register = () => {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
@@ -24,7 +26,7 @@ const handleRegister = async (e) => {
   }
 
   try {
-    const response = await fetch('http://localhost:5001/api/register', {
+    const response = await fetch(`${API_BASE_URL}/api/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, email, password }),

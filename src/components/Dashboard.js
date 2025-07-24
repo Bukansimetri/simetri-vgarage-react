@@ -5,7 +5,11 @@ import axios from 'axios';
 import './Dashboard.css';
 import './Backgrounds.css'; // Import the CSS file for backgrounds
 
+
+
 function Dashboard() {
+  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+
   const [vehicles, setVehicles] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [notifIndex, setNotifIndex] = useState(0);
@@ -28,7 +32,7 @@ function Dashboard() {
         return;
       }
       // Fetch vehicles for this user
-      fetch('http://localhost:5000/api/vehicles', {
+      fetch(`${API_BASE_URL}}/api/vehicles`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -124,7 +128,7 @@ function Dashboard() {
   const notifyUser = async (notificationText) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/notify', {
+      const response = await fetch(`${API_BASE_URL}}/api/notify`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -164,7 +168,7 @@ function Dashboard() {
     }
 
     try {
-      await fetch(`http://localhost:5000/api/vehicles/${vehicleId}`, {
+      await fetch(`${API_BASE_URL}/api/vehicles/${vehicleId}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -173,7 +177,7 @@ function Dashboard() {
         body: JSON.stringify(updateBody),
       });
       // Refetch vehicles to update notifications
-      fetch('http://localhost:5000/api/vehicles', {
+      fetch(`${API_BASE_URL}}/api/vehicles`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
         .then(res => res.json())

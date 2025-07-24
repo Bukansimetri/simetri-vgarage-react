@@ -3,6 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import "./VehicleDetail.css";
 
 function EditVehicle() {
+  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+
   const { id } = useParams();
   const [vehicle, setVehicle] = useState(null);
   const [error, setError] = useState(null);
@@ -10,7 +12,7 @@ function EditVehicle() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    fetch(`http://localhost:5000/api/vehicles/${id}`, {
+    fetch(`${API_BASE_URL}/api/vehicles/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
@@ -28,7 +30,7 @@ function EditVehicle() {
   const handleSubmit = (e) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
-    fetch(`http://localhost:5000/api/vehicles/${id}`, {
+    fetch(`${API_BASE_URL}/api/vehicles/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

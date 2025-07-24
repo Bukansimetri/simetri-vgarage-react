@@ -31,12 +31,12 @@ app.use(express.json());
 // KONEKSI DATABASE POSTGRESQL
 // =============================================
 const pool = new Pool({
-  user: 'jumratyahmad',
-  host: '127.0.0.1',
-  database: 'db_vgaraga',
-  password: 'password', // Ganti dengan password PostgreSQL Anda
-  port: 5432,
+  connectionString: 'postgresql://root:8Hn9rAqtyTQS6edKlffgFLp2VkzF1HzK@dpg-d215quemcj7s73efs7ug-a/db_vgarage',
+  ssl: {
+    rejectUnauthorized: false,
+  },
 });
+
 
 // JWT Secret (Simpan di .env untuk produksi)
 const JWT_SECRET = process.env.JWT_SECRET;

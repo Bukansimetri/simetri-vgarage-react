@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 function VirtualAIMechanicChat({ open, onClose }) {
+  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+
   const [messages, setMessages] = useState([
     { from: 'ai', text: 'Hello! I am the Virtual AI mechanic! How can I assist you with your vehicle today?' }
   ]);
@@ -17,7 +19,7 @@ function VirtualAIMechanicChat({ open, onClose }) {
 
     try {
       // Call your backend API endpoint that proxies to OpenAI (recommended for security)
-      const res = await axios.post('http://localhost:5000/api/ai-chat', {
+      const res = await axios.post(`${API_BASE_URL}/api/ai-chat`, {
         messages: newMessages.map(m => ({
           role: m.from === 'user' ? 'user' : 'assistant',
           content: m.text

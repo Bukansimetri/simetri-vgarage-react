@@ -2,7 +2,10 @@ import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import './Login.css'; // Reuse Login styles
 
+
 function ResetPassword() {
+  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+
   const { token } = useParams();
   const [newPassword, setNewPassword] = useState("");
   const [msg, setMsg] = useState("");
@@ -14,7 +17,7 @@ function ResetPassword() {
     setMsg("");
     setError("");
     try {
-      const res = await fetch("http://localhost:5000/api/reset-password", {
+      const res = await fetch(`${API_BASE_URL}/api/reset-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token, newPassword }),

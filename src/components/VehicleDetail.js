@@ -3,6 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import "./VehicleDetail.css";
 
 function VehicleDetail() {
+  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+
   const { id } = useParams();
   const [vehicle, setVehicle] = useState(null);
   const [error, setError] = useState(null);
@@ -14,7 +16,7 @@ function VehicleDetail() {
       navigate("/login");
       return;
     }
-    fetch(`http://localhost:5000/api/vehicles/${id}`, {
+    fetch(`${API_BASE_URL}/api/vehicles/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => {
@@ -29,7 +31,7 @@ function VehicleDetail() {
     if (!window.confirm("Are you sure you want to delete this vehicle?")) return;
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch(`http://localhost:5000/api/vehicles/${id}`, {
+      const res = await fetch(`${API_BASE_URL}/api/vehicles/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });

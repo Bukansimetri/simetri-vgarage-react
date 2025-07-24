@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import './Login.css'; // Reuse Login styles
 
 function ForgotPassword() {
+  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+  
   const [email, setEmail] = useState("");
   const [msg, setMsg] = useState("");
   const [error, setError] = useState("");
@@ -11,7 +13,7 @@ function ForgotPassword() {
     setMsg("");
     setError("");
     try {
-      const res = await fetch("http://localhost:5000/api/request-password-reset", {
+      const res = await fetch(`${API_BASE_URL}/api/request-password-reset`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),

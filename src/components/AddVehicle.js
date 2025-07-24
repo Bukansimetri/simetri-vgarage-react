@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import './AddVehicle.css';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+
 const AddVehicle = () => {
   const [form, setForm] = useState({
     name: '',
@@ -19,7 +21,7 @@ const AddVehicle = () => {
     e.preventDefault();
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/vehicles', {
+      const response = await fetch(`${API_BASE_URL}/api/vehicles`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
