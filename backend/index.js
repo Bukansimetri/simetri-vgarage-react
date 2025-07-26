@@ -14,15 +14,16 @@ const app = express();
 // =============================================
 // KONFIGURASI CORS (PASTIKAN DI ATAS MIDDLEWARE LAIN!)
 // =============================================
-app.use(cors({
-  origin: 'https://simetri-vgarage-react.onrender.com', // Ganti dengan origin frontend
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+const corsOptions = {
+  origin: 'https://simetri-vgarage-react.onrender.com', // Ganti dengan domain frontend kamu
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true // Jika menggunakan cookie/session
-}));
+  credentials: true, // Jika tidak pakai cookie-based auth, kamu bisa set ke false
+};
 
 // Tangani khusus OPTIONS request (Preflight)
-app.options('*', cors()); // Izinkan semua route
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions)); // Enable preflight for all routes
 
 // Middleware untuk parsing JSON
 app.use(express.json());
