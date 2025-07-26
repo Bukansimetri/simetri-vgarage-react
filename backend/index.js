@@ -12,48 +12,140 @@ require('dotenv').config();
 const app = express();
 
 // =============================================
-// KONFIGURASI CORS (PASTIKAN DI ATAS MIDDLEWARE LAIN!)
+// ENHANCED CORS CONFIGURATION
 // =============================================
-const corsOptions = {
-  origin: 'https://simetri-vgarage-react.onrender.com', // Ganti dengan domain frontend kamu
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true, // Jika tidak pakai cookie-based auth, kamu bisa set ke false
-};
+const allowedOrigins = [
+  'https://simetri-vgarage-react.onrender.com',
+  'http://localhost:3000' // For local development
+];
 
-// Tangani khusus OPTIONS request (Preflight)
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions)); // Enable preflight for all routes
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  
+  next();
+});
 
-// Middleware untuk parsing JSON
+// Middleware for JSON parsing
 app.use(express.json());
+
 
 // =============================================
 // KONEKSI DATABASE POSTGRESQL
 // =============================================
-const pool = new Pool({
+const poolConfig = {
   connectionString: 'postgresql://root:8Hn9rAqtyTQS6edKlffgFLp2VkzF1HzK@dpg-d215quemcj7s73efs7ug-a/db_vgarage',
   ssl: {
     rejectUnauthorized: false,
   },
+  // Connection pool settings
+  max: 20, // maximum number of clients in the pool
+  idleTimeoutMillis: 30000, // how long a client is allowed to remain idle before being closed
+  connectionTimeoutMillis: 5000 // how long to try to connect before timing out
+};
+
+const pool = new Pool(poolConfig);
+
+// Test database connection on startup
+pool.connect((err, client, release) => {
+  if (err) {
+    console.error('❌ Error connecting to database:', err.stack);
+  } else {
+    console.log('✅ Connected to database successfully');
+    release();
+  }
 });
 
-
-// JWT Secret (Simpan di .env untuk produksi)
+// JWT Configuration
 const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  console.error('❌ Fatal Error: JWT_SECRET is not defined in environment variables');
+  process.exit(1);
+}
 
-// Configure your email transporter (example uses Gmail)
+// Email transporter configuration
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.EMAIL_ADMIN, // Your email
-    pass: process.env.EMAIL_PASS, // Your email password or app password
+    user: process.env.EMAIL_ADMIN,
+    pass: process.env.EMAIL_PASS,
   },
 });
 
-// Tes route
+// =============================================
+// ENHANCED ROUTES WITH COMPREHENSIVE ERROR HANDLING
+// =============================================
+// Health check endpoint
 app.get('/api/test-db', async (req, res) => {
-  res.json({ status: 'DB OK' });
+  try {
+    const result = await pool.query('SELECT NOW() as current_time');
+    res.json({ 
+      status: 'DB OK',
+      current_time: result.rows[0].current_time,
+      environment: process.env.NODE_ENV || 'development'
+    });
+  } catch (err) {
+    console.error('Database health check failed:', err);
+    res.status(500).json({ 
+      status: 'DB Connection Failed',
+      error: err.message 
+    });
+  }
+});
+
+// Deep database check endpoint
+app.get('/api/deep-db-check', async (req, res) => {
+  try {
+    // Test 1: Basic connection
+    const timeQuery = await pool.query('SELECT NOW() as current_time');
+    
+    // Test 2: Users table access
+    const userQuery = await pool.query('SELECT COUNT(*) FROM users');
+    
+    // Test 3: Test write operation (with rollback)
+    await pool.query('BEGIN');
+    const testEmail = `test_${Date.now()}@test.com`;
+    await pool.query(
+      'INSERT INTO users (name, email, password) VALUES ($1, $2, $3)',
+      ['Test User', testEmail, 'dummy']
+    );
+    await pool.query('ROLLBACK');
+    
+    res.json({
+      status: 'DB Fully Operational',
+      currentTime: timeQuery.rows[0].current_time,
+      userCount: userQuery.rows[0].count,
+      database: poolConfig.connectionString.split('@')[1]?.split('/')[0] || 'unknown'
+    });
+  } catch (err) {
+    console.error('Deep DB Check failed:', err);
+    res.status(500).json({
+      status: 'DB Check Failed',
+      error: err.message,
+      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    });
+  }
+});
+
+// Simple test endpoint for CORS debugging
+app.post('/api/simple-test', (req, res) => {
+  console.log('Simple test headers:', req.headers);
+  console.log('Simple test body:', req.body);
+  res.json({ 
+    status: 'OK',
+    headers: req.headers,
+    body: req.body
+  });
 });
 
 // Register endpoint
@@ -403,4 +495,25 @@ app.patch('/api/vehicles/:id', authenticateToken, async (req, res) => {
   }
 });
 
-app.listen(5001, () => console.log('Server running on http://localhost:5001'));
+// =============================================
+// ERROR HANDLING MIDDLEWARE
+// =============================================
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  res.status(500).json({
+    message: 'Internal server error',
+    error: err.message,
+    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+  });
+});
+
+// =============================================
+// SERVER STARTUP
+// =============================================
+const PORT = 5001;
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`🔭 Allowed origins: ${allowedOrigins.join(', ')}`);
+  console.log(`🔑 JWT secret: ${JWT_SECRET ? 'exists' : 'missing'}`);
+  console.log(`📧 Email configured: ${transporter.options.auth.user ? 'yes' : 'no'}`);
+});
