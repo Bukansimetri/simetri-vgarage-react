@@ -15,7 +15,7 @@ const app = express();
 // KONFIGURASI CORS (PASTIKAN DI ATAS MIDDLEWARE LAIN!)
 // =============================================
 app.use(cors({
-  origin: 'http://localhost:3000', // Ganti dengan origin frontend
+  origin: 'https://simetri-vgarage-react.onrender.com', // Ganti dengan origin frontend
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true // Jika menggunakan cookie/session
