@@ -51,6 +51,11 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// Tes route
+app.get('/api/test-db', async (req, res) => {
+  res.json({ status: 'DB OK' });
+});
+
 // Register endpoint
 app.post('/api/register', async (req, res) => {
   const { name, email, password } = req.body;
