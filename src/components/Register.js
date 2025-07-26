@@ -1,84 +1,157 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './Register.css'; // You can reuse Login.css or create a new one
+import './Register.css';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+// Use environment variable or fallback to local development
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://simetri-vgarage-backend.onrender.com';
 
 const Register = () => {
-  const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
+  });
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-const handleRegister = async (e) => {
-  e.preventDefault();
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
 
-  if (!email || !password || !confirmPassword || !name) {
-    setError('Please fill out all fields.');
-    return;
-  }
-
-  if (password !== confirmPassword) {
-    setError('Passwords do not match.');
-    return;
-  }
-
-  try {
-    const response = await fetch(`${API_BASE_URL}/api/register`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      setError(data.message || 'Registration failed.');
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setError(''); // Reset error state
+    
+    // Validation
+    const { name, email, password, confirmPassword } = formData;
+    
+    if (!name || !email || !password || !confirmPassword) {
+      setError('Please fill out all fields.');
       return;
     }
 
-    setError('');
-    alert('Registered successfully!');
-    navigate('/login');
-  } catch (err) {
-    setError('Server error. Please try again later.');
-  }
-};
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters.');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/register`, {
+        method: 'POST',
+        mode: 'cors',
+        credentials: 'include',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      // Handle non-2xx responses
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.message || 
+          `Registration failed with status ${response.status}`
+        );
+      }
+
+      const data = await response.json();
+      
+      // Success case
+      alert('Registered successfully! Please login.');
+      navigate('/login');
+      
+    } catch (err) {
+      console.error('Registration error:', err);
+      setError(
+        err.message || 
+        'Server error. Please try again later. ' +
+        'If this persists, contact support.'
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="login-container">
       <form onSubmit={handleRegister} className="login-form">
-        <h2>Register</h2>
+        <h2>Create Account</h2>
         
+        {error && (
+          <div className="error-message">
+            {error}
+          </div>
+        )}
+
         <input
-          type="name"
-          placeholder="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          type="text"
+          name="name"
+          placeholder="Full Name"
+          value={formData.name}
+          onChange={handleChange}
+          required
         />
-        {error && <p className="error">{error}</p>}
+
         <input
           type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          name="email"
+          placeholder="Email Address"
+          value={formData.email}
+          onChange={handleChange}
+          required
         />
+
         <input
           type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          name="password"
+          placeholder="Password (min 6 characters)"
+          value={formData.password}
+          onChange={handleChange}
+          minLength="6"
+          required
         />
+
         <input
           type="password"
+          name="confirmPassword"
           placeholder="Confirm Password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
+          value={formData.confirmPassword}
+          onChange={handleChange}
+          required
         />
-        <button type="submit">Register</button>
+
+        <button 
+          type="submit" 
+          disabled={isLoading}
+        >
+          {isLoading ? 'Registering...' : 'Register'}
+        </button>
+
+        <div className="login-link">
+          Already have an account? 
+          <button 
+            type="button" 
+            onClick={() => navigate('/login')}
+            className="link-button"
+          >
+            Login here
+          </button>
+        </div>
       </form>
     </div>
   );
