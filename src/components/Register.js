@@ -141,17 +141,6 @@ const Register = () => {
         >
           {isLoading ? 'Registering...' : 'Register'}
         </button>
-
-        <div className="login-link">
-          Already have an account? 
-          <button 
-            type="button" 
-            onClick={() => navigate('/login')}
-            className="link-button"
-          >
-            Login here
-          </button>
-        </div>
       </form>
     </div>
   );
