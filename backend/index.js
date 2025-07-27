@@ -16,7 +16,7 @@ const app = express();
 app.use((req, res, next) => {
   res.setHeader(
     "Access-Control-Allow-Origin",
-    "https://vgarage.site/"
+    "https://vgarage.site"
   );
   res.setHeader(
     "Access-Control-Allow-Methods",
