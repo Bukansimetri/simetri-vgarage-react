@@ -16,7 +16,7 @@ const app = express();
 app.use((req, res, next) => {
   res.setHeader(
     "Access-Control-Allow-Origin",
-    "https://simetri-vgarage-react.onrender.com"
+    "https://vgarage.site/"
   );
   res.setHeader(
     "Access-Control-Allow-Methods",
