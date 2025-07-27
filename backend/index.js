@@ -511,7 +511,6 @@ app.use((err, req, res, next) => {
 const PORT = 5001;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`🔭 Allowed origins: ${allowedOrigins.join(', ')}`);
   console.log(`🔑 JWT secret: ${JWT_SECRET ? 'exists' : 'missing'}`);
   console.log(`📧 Email configured: ${transporter.options.auth.user ? 'yes' : 'no'}`);
 });
