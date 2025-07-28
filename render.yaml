@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: simetri-backend
+    env: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: DATABASE_URL
+        value: postgresql://root:8Hn9rAqtyTQS6edKlffgFLp2VkzF1HzK@dpg-d215quemcj7s73efs7ug-a/db_vgarage
+      - key: PORT
+        value: 5432
+  - type: static
+    name: simetri-frontend
+    rootDir: .
+    buildCommand: npm run build
+    publishDir: build
+    envVars:
+      - key: REACT_APP_API_URL
+        value: https://simetri-vgarage-backend
