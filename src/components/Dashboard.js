@@ -32,7 +32,7 @@ function Dashboard() {
         return;
       }
       // Fetch vehicles for this user
-      fetch(`${API_BASE_URL}}/api/vehicles`, {
+      fetch(`${API_BASE_URL}/api/vehicles`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -128,7 +128,7 @@ function Dashboard() {
   const notifyUser = async (notificationText) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${API_BASE_URL}}/api/notify`, {
+      const response = await fetch(`${API_BASE_URL}/api/notify`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -177,7 +177,7 @@ function Dashboard() {
         body: JSON.stringify(updateBody),
       });
       // Refetch vehicles to update notifications
-      fetch(`${API_BASE_URL}}/api/vehicles`, {
+      fetch(`${API_BASE_URL}/api/vehicles`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
         .then(res => res.json())
