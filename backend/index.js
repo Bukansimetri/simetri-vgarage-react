@@ -234,6 +234,11 @@ app.get('/api/vehicles', authenticateToken, async (req, res) => {
       'SELECT * FROM vehicles WHERE user_id = $1',
       [userId]
     );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'No vehicles found for this user.' });
+    } 
+
     res.json(result.rows);
   } catch (err) {
     res.status(500).json({ message: 'Error fetching vehicles', error: err.message });
@@ -401,7 +406,7 @@ app.post('/api/request-password-reset', async (req, res) => {
     );
 
     // Send email with reset link
-    const resetLink = `http://localhost:3000/reset-password/${token}`;
+    const resetLink = `https://vgarage.site/reset-password/${token}`;
     await transporter.sendMail({
       from: process.env.EMAIL_ADMIN,
       to: email,
